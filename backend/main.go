@@ -1,18 +1,18 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
 
-func main() {
-	r := mux.NewRouter()
-	routes.RegisterRoutes(r)
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Server is running!")
+}
 
-	//cors config
+func main() {
+	//config := cors.DefaultConfig()
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
@@ -20,7 +20,7 @@ func main() {
 		AllowCredentials: true,
 	})
 
-	port := ":8080"
-	log.Printf("Servidor rodando na porta", port)
-	log.Fatal(http.ListenAndServe(port, c.Handler(r)))
+	http.HandleFunc("/", handler)
+	fmt.Println("Server is running on http://localhost:8080")
+	http.ListenAndServe(":8080", c.Handler(http.DefaultServeMux))
 }
