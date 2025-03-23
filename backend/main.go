@@ -3,24 +3,24 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
-	"runtime"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-
 	r := mux.NewRouter()
+	routes.RegisterRoutes(r)
 
-	http.Handle("/", r)
+	//cors config
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	log.Printf("Server listening on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	port := ":8080"
+	log.Printf("Servidor rodando na porta", port)
+	log.Fatal(http.ListenAndServe(port, c.Handler(r)))
 }
