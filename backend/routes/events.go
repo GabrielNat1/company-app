@@ -78,7 +78,7 @@ func HandleEvents(db *sql.DB) http.HandlerFunc {
 			json.NewEncoder(w).Encode(events)
 
 		case http.MethodPost:
-			// Verificar se é admin
+			// Verify admin role
 			var role string
 			err := db.QueryRow("SELECT role FROM users WHERE id = ?", userID).Scan(&role)
 			if err != nil || role != "admin" {

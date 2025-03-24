@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Events from './pages/Events';
+import EventChat from './pages/EventChat';
 import Profile from './pages/Profile';
 import Chat from './pages/Chat';
 import PrivateRoute from './components/PrivateRoute';
@@ -26,7 +27,7 @@ function App() {
         <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="events" element={<Events />} />
-          <Route path="events/:id" element={<Chat />} />
+          <Route path="events/:id" element={<EventChat />} />
           <Route path="profile" element={<Profile />} />
           <Route path="chat" element={<Chat />} />
           <Route index element={<Navigate to="/dashboard" replace />} />

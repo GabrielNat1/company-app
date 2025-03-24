@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Lock, User, UserPlus } from 'lucide-react';
+import axios from 'axios';
 
 function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log('Registration attempt:', { name, email, password });
+    try {
+      await axios.post('/api/auth/register', { name, email, password });
+      // Handle successful registration (e.g., redirect to login page)
+    } catch (error) {
+      console.error('Registration failed:', error);
+    }
   };
 
   return (
