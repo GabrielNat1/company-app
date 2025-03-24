@@ -30,7 +30,6 @@ go mod tidy
 ### 3. Configure the Database
 Edit the `.env` file:
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/company_db"
 JWT_SECRET="your_secret_key"
 ```
 
@@ -61,20 +60,6 @@ go run main.go
 - `GET /profile` - View user profile.
 - `GET /dashboard` - Statistics (**Admin only**).
 
-## Folder Structure
-```
-company-app-backend/
-│-- src/
-│   ├── config/          # Database configuration
-│   ├── controllers/     # Request logic
-│   ├── middleware/      # Authentication and route protection
-│   ├── models/         # GORM model definitions
-│   ├── routes/         # API route definitions
-│   ├── main.go         # Main server file
-│-- .env                # Environment variables
-│-- go.mod              # Project dependencies
-│-- README.md           # Project documentation
-```
 
 ## Web and Mobile Front-end
 - The **web front-end** is built using **React.js**, consuming the back-end API.
