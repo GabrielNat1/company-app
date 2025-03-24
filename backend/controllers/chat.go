@@ -23,9 +23,9 @@ type Message struct {
 
 type ChatHub struct {
 	clients    map[*Client]bool
-	broadcast  chan Message
-	register   chan *Client
-	unregister chan *Client
+	Broadcast  chan Message
+	Register   chan *Client
+	Unregister chan *Client
 	db         *sql.DB
 	mu         sync.Mutex
 }
@@ -33,9 +33,9 @@ type ChatHub struct {
 func NewChatHub(db *sql.DB) *ChatHub {
 	return &ChatHub{
 		clients:    make(map[*Client]bool),
-		broadcast:  make(chan Message),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
+		Broadcast:  make(chan Message),
+		Register:   make(chan *Client),
+		Unregister: make(chan *Client),
 		db:         db,
 	}
 }
@@ -43,12 +43,12 @@ func NewChatHub(db *sql.DB) *ChatHub {
 func (h *ChatHub) Run() {
 	for {
 		select {
-		case client := <-h.register:
+		case client := <-h.Register:
 			h.mu.Lock()
 			h.clients[client] = true
 			h.mu.Unlock()
 
-		case client := <-h.unregister:
+		case client := <-h.Unregister:
 			h.mu.Lock()
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
@@ -56,7 +56,7 @@ func (h *ChatHub) Run() {
 			}
 			h.mu.Unlock()
 
-		case message := <-h.broadcast:
+		case message := <-h.Broadcast:
 			h.mu.Lock()
 			// Salvar mensagem no banco
 			_, err := h.db.Exec(`

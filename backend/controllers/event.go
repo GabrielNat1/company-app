@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -18,17 +19,24 @@ func NewEventController(db *gorm.DB) *EventController {
 	return &EventController{db: db}
 }
 
-func (ec *EventController) CreateEvent(c *gin.Context) {
-	var input struct {
-		Title       string    `json:"title" binding:"required"`
-		Description string    `json:"description" binding:"required"`
-		Date        time.Time `json:"date" binding:"required,future"`
-		Location    string    `json:"location" binding:"required"`
-		Capacity    int       `json:"capacity" binding:"required,min=1"`
-	}
+type CreateEventInput struct {
+	Title       string    `json:"title" binding:"required"`
+	Description string    `json:"description" binding:"required"`
+	Date        time.Time `json:"date" binding:"required"`
+	Location    string    `json:"location" binding:"required"`
+	Capacity    int       `json:"capacity" binding:"required,min=1"`
+}
 
+func (ec *EventController) CreateEvent(c *gin.Context) {
+	var input CreateEventInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate future date manually
+	if input.Date.Before(time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Event date must be in the future"})
 		return
 	}
 
@@ -47,7 +55,18 @@ func (ec *EventController) CreateEvent(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, event)
+	// Log event creation for debugging
+	fmt.Printf("Event created: %+v\n", event)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"id":          event.ID,
+		"title":       event.Title,
+		"description": event.Description,
+		"date":        event.Date,
+		"location":    event.Location,
+		"capacity":    event.Capacity,
+		"creatorId":   event.CreatorID,
+	})
 }
 
 func (ec *EventController) JoinEvent(c *gin.Context) {
