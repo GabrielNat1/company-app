@@ -1,28 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 function EventChat() {
   const { id } = useParams();
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const socket = io('/ws/chat');
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    socket.emit('join', { eventId: id });
+    const newSocket = io('http://localhost:8080/ws/chat', {
+      transports: ['websocket'],
+      auth: {
+        token: localStorage.getItem('token'),
+      },
+    });
+    setSocket(newSocket);
 
-    socket.on('message', (msg) => {
+    newSocket.emit('join', { eventId: id });
+
+    newSocket.on('message', (msg) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
     });
 
     return () => {
-      socket.disconnect();
+      newSocket.disconnect();
     };
   }, [id]);
 
   const handleSendMessage = () => {
-    socket.emit('message', { eventId: id, content: message });
-    setMessage('');
+    if (socket) {
+      socket.emit('message', { eventId: id, content: message });
+      setMessage('');
+    }
   };
 
   return (
