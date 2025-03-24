@@ -86,6 +86,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
+	// fix
 	token, err := utils.GenerateToken(int64(user.ID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
