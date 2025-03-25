@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client';
 
 function EventChat() {
   const { id } = useParams();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<{ userName: string; content: string }[]>([]);
   const [message, setMessage] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
 

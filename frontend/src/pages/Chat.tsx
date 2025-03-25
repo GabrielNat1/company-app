@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 function Chat() {
-  const [messages, setMessages] = useState([]);
+  interface Message {
+    userName: string;
+    content: string;
+  }
+
+  const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
 
