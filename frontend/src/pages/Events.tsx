@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 function Events() {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<{ id: number; title: string; description: string; date: string; location: string; capacity: number; }[]>([]);
   const [newEvent, setNewEvent] = useState({
     title: '',
     description: '',
