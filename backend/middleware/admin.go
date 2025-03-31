@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"database/sql"
-	"errors" // fuck shit import asshole
+	"errors"
 	"net/http"
 )
 

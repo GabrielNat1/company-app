@@ -7,6 +7,7 @@ import (
 
 	"github.com/GabrielNat1/WorkSphere/controllers"
 	"github.com/GabrielNat1/WorkSphere/database"
+	"github.com/GabrielNat1/WorkSphere/middleware"
 	"github.com/GabrielNat1/WorkSphere/routes"
 	"github.com/rs/cors"
 )
@@ -18,19 +19,22 @@ func main() {
 	}
 	defer db.Close()
 
-	// Inicializar hub do chat
+	// Initialize the chat hub
 	chatHub := controllers.NewChatHub(db)
 	go chatHub.Run()
 
 	mux := http.NewServeMux()
 
-	// Rotas públicas
+	// Public routes
 	mux.HandleFunc("/api/auth/register", routes.HandleRegister(db))
 	mux.HandleFunc("/api/auth/login", routes.HandleLogin(db))
 
-	// Rotas protegidas
+	// Private routes
 	mux.HandleFunc("/api/events", routes.HandleEvents(db))
 	mux.HandleFunc("/api/events/join/", routes.HandleJoinEvent(db))
+	mux.HandleFunc("/api/dashboard", func(w http.ResponseWriter, r *http.Request) {
+		middleware.AdminRequired(db)(routes.HandleDashboard(db)).ServeHTTP(w, r)
+	})
 
 	// Chat WebSocket
 	mux.HandleFunc("/ws/chat/", func(w http.ResponseWriter, r *http.Request) {
