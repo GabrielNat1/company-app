@@ -6,20 +6,20 @@ services:
     environment:
       - PORT=8080
 
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - PORT=3000
+#  frontend:
+#    build: ./frontend
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      - PORT=3000
 
-  mobile:
-    build: ./mobile
-    ports:
-      - "19000:19000"
-      - "19001:19001"
-      - "19002:19002"
-      - "19006:19006"
-    environment:
-      - PORT=19000
-      - REACT_NATIVE_PACKAGER_HOSTNAME=localhost
+#  mobile:
+#    build: ./mobile
+#    ports:
+#      - "19000:19000"
+#      - "19001:19001"
+#      - "19002:19002"
+#      - "19006:19006"
+#    environment:
+#     - PORT=19000
+#      - REACT_NATIVE_PACKAGER_HOSTNAME=localhost

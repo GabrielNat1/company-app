@@ -109,3 +109,41 @@ func HandleLogin(db *sql.DB) http.HandlerFunc {
 		})
 	}
 }
+
+func HandleResetPassword(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var input struct {
+			Email       string `json:"email"`
+			NewPassword string `json:"newPassword"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		result, err := db.Exec(`
+			UPDATE users SET password = ? WHERE email = ?
+		`, hashedPassword, input.Email)
+
+		rowsAffected, _ := result.RowsAffected()
+		if err != nil || rowsAffected == 0 {
+			http.Error(w, "Email not found", http.StatusNotFound)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Password reset successfully"})
+	}
+}

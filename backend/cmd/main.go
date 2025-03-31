@@ -37,6 +37,15 @@ func main() {
 		routes.HandleWebSocket(w, r, db, chatHub)
 	})
 
+	// Health-check endpoint
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
+	// Reset password endpoint
+	mux.HandleFunc("/api/auth/reset-password", routes.HandleResetPassword(db))
+
 	// CORS configuration
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:19000"},
