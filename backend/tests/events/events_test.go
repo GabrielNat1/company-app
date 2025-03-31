@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/GabrielNat1/WorkSphere/controllers"
-	"github.com/GabrielNat1/WorkSphere/models"
+	"github.com/GabrielNat1/WorkSphere/database/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

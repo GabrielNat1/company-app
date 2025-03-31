@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/GabrielNat1/WorkSphere/models"
+	"github.com/GabrielNat1/WorkSphere/database/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

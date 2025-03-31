@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/GabrielNat1/WorkSphere/controllers"
-	"github.com/GabrielNat1/WorkSphere/models"
+	"github.com/GabrielNat1/WorkSphere/database/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"

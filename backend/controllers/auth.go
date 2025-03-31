@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/GabrielNat1/WorkSphere/models"
+	"github.com/GabrielNat1/WorkSphere/database/models"
 	"github.com/GabrielNat1/WorkSphere/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
