@@ -16,7 +16,7 @@ Please upgrade to a supported version to receive security patches.
 If you discover a security vulnerability in this project, please report it responsibly. To do so:
 
 1. **Do not disclose publicly**
-2. **Include deta
+2. **Include deta**
 3. **Wait for a response**
 
 ## Security Best Practices
