@@ -18,7 +18,7 @@ This is the back-end of a system for a company that allows:
 
 ### 1. Clone the Repository
 ```sh
-git clone https://github.com/GabrielNat1/company-app-backend
+git clone https://github.com/GabrielNat1/company-app-backend.git
 cd company-app-backend
 ```
 
