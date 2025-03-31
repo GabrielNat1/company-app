@@ -45,30 +45,30 @@ go run main.go
 
 ## API Endpoints
 
-### **Authentication** (`/auth`)
+### **Authentication** (`/api/auth`)
 - `POST /register` - User registration.
 - `POST /login` - Authentication with JWT.
-- `POST /logout` - Logout.
+- `POST /reset-password` - Reset user password.
 
-### **Events** (`/events`)
+### **Events** (`/api/events`)
 - `GET /` - List all events.
 - `POST /` - Create event (**Admin only**).
-- `GET /:id` - Event details.
-- `POST /:id/join` - Join an event.
+- `POST /join/:id` - Join an event.
 
-### **Users** (`/users`)
-- `GET /profile` - View user profile.
-- `GET /dashboard` - Statistics (**Admin only**).
+### **Dashboard** (`/api/dashboard`)
+- `GET /` - View system statistics (**Admin only**).
 
+### **WebSocket** (`/ws/chat`)
+- `GET /:eventId` - Connect to the chat for a specific event.
 
-## Web and Mobile Front-end
-- The **web front-end** is built using **React.js**, consuming the back-end API.
-- The **mobile application** is built using **React Native**, allowing access to events, registration, and live chat.
 
 ## Future Improvements
 - Implement WebSockets for live chat.
 - Improve permission system for administrators.
 - Enhance the mobile version with more features and push notifications.
+### Web and Mobile Front-end
+- The **web front-end** is built using **React.js**, consuming the back-end API.
+- The **mobile application** is built using **React Native**, allowing access to events, registration, and live chat.
 
 ## Contribution
 1. Fork the repository
