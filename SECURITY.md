@@ -15,9 +15,9 @@ Please upgrade to a supported version to receive security patches.
 
 If you discover a security vulnerability in this project, please report it responsibly. To do so:
 
-1. **Do not disclose publicly**: Instead, send an email to [security@example.com] with details.
-2. **Include details**: Provide steps to reproduce, the impact, and potential fixes if possible.
-3. **Wait for a response**: We aim to acknowledge reports within 48 hours and provide updates on resolution progress.
+1. **Do not disclose publicly**
+2. **Include deta
+3. **Wait for a response**
 
 ## Security Best Practices
 
