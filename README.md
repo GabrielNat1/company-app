@@ -30,7 +30,10 @@ go mod tidy
 ### 3. Configure the Database
 Edit the `.env` file:
 ```env
-JWT_SECRET="your_secret_key"
+PORT="you preference"
+IS_LOCALHOST="is local host? true / false"
+JWT_SECRET="you secret key"
+ENABLE_CORS="Do you want CORS enabled? true / false"
 ```
 
 Run GORM migrations:
@@ -79,4 +82,3 @@ go run main.go
 
 ## License
 This project is licensed under the MIT License.
-
