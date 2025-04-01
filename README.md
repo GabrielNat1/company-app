@@ -1,5 +1,39 @@
 # Company App - Back-end
 
+```mermaid
+graph TD;
+    subgraph Backend
+        CMD["cmd/main.go (Entry Point)"]
+        
+        subgraph API
+            Controllers["Controllers (auth.go, chat.go, event.go)"]
+            Routes["Routes (auth, dashboard, events, websocket)"]
+            Middleware["Middleware (admin.go, auth.go)"]
+        end
+
+        subgraph Database
+            DB["SQLite (workshere.db)"]
+            Models["Models (user.go, event.go)"]
+        end
+
+        subgraph Utils
+            UT["Utils & Tests"]
+        end
+    end
+
+    CMD --> API
+    API -->|Handles| Routes
+    API -->|Secures| Middleware
+    Routes -->|Processes| Controllers
+    Controllers -->|Interacts| Database
+    Database -->|Stores Data| DB
+    API -->|Uses| UT
+
+
+```
+
+
+
 ## Description
 This is the back-end of a system for a company that allows:
 - User registration and login with JWT authentication.
