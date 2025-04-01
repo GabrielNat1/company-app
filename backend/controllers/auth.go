@@ -7,28 +7,39 @@ import (
 	"github.com/GabrielNat1/WorkSphere/database/models"
 	"github.com/GabrielNat1/WorkSphere/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type AuthController struct {
-	db *gorm.DB
+	db       *gorm.DB
+	validate *validator.Validate
 }
 
 func NewAuthController(db *gorm.DB) *AuthController {
-	return &AuthController{db: db}
+	return &AuthController{
+		db:       db,
+		validate: validator.New(),
+	}
+}
+
+type RegisterInput struct {
+	Name      string    `json:"name" validate:"required"`
+	Email     string    `json:"email" validate:"required,email"`
+	Password  string    `json:"password" validate:"required,min=6"`
+	BirthDate time.Time `json:"birthDate" validate:"required"`
+	Phone     string    `json:"phone" validate:"required"`
 }
 
 func (ac *AuthController) Register(c *gin.Context) {
-	var input struct {
-		Name      string    `json:"name" binding:"required"`
-		Email     string    `json:"email" binding:"required,email"`
-		Password  string    `json:"password" binding:"required,min=6"`
-		BirthDate time.Time `json:"birthDate" binding:"required"`
-		Phone     string    `json:"phone" binding:"required"`
+	var input RegisterInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := ac.validate.Struct(input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -64,13 +75,19 @@ func (ac *AuthController) Register(c *gin.Context) {
 	})
 }
 
+type LoginInput struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
 func (ac *AuthController) Login(c *gin.Context) {
-	var input struct {
-		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required"`
+	var input LoginInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := ac.validate.Struct(input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -86,7 +103,6 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	// fix
 	token, err := utils.GenerateToken(int64(user.ID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})

@@ -8,28 +8,38 @@ import (
 
 	"github.com/GabrielNat1/WorkSphere/database/models"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
 type EventController struct {
-	db *gorm.DB
+	db       *gorm.DB
+	validate *validator.Validate
 }
 
 func NewEventController(db *gorm.DB) *EventController {
-	return &EventController{db: db}
+	return &EventController{
+		db:       db,
+		validate: validator.New(),
+	}
 }
 
 type CreateEventInput struct {
-	Title       string    `json:"title" binding:"required"`
-	Description string    `json:"description" binding:"required"`
-	Date        time.Time `json:"date" binding:"required"`
-	Location    string    `json:"location" binding:"required"`
-	Capacity    int       `json:"capacity" binding:"required,min=1"`
+	Title       string    `json:"title" validate:"required"`
+	Description string    `json:"description" validate:"required"`
+	Date        time.Time `json:"date" validate:"required"`
+	Location    string    `json:"location" validate:"required"`
+	Capacity    int       `json:"capacity" validate:"required,min=1"`
 }
 
 func (ec *EventController) CreateEvent(c *gin.Context) {
 	var input CreateEventInput
 	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := ec.validate.Struct(input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
