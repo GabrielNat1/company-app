@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/GabrielNat1/WorkSphere/database/models"
+	"github.com/GabrielNat1/WorkSphere/middleware"
 	"github.com/GabrielNat1/WorkSphere/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -109,8 +110,23 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
+	// Generate CSRF token and set as cookie.
+	csrfToken, err := middleware.GenerateCSRFToken()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate CSRF token"})
+		return
+	}
+	// Set cookie (accessible to JS so HttpOnly is false).
+	c.SetCookie("csrf_token", csrfToken, 3600, "/", "", false, false)
+
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
-		"user":  user,
+		"token":     token,
+		"csrfToken": csrfToken,
+		"user": map[string]interface{}{
+			"id":    user.ID,
+			"name":  user.Name,
+			"email": user.Email,
+			"role":  user.Role,
+		},
 	})
 }
