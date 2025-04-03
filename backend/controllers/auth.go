@@ -79,6 +79,7 @@ func (ac *AuthController) Register(c *gin.Context) {
 type LoginInput struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
+	MFACode  string `json:"mfaCode"` // -- MFA code field for multifactor authentication
 }
 
 func (ac *AuthController) Login(c *gin.Context) {
@@ -102,6 +103,18 @@ func (ac *AuthController) Login(c *gin.Context) {
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
+	}
+
+	// MFA check
+	if user.Role == "admin" {
+		if input.MFACode == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "MFA code required"})
+			return
+		}
+		if input.MFACode != "123456" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid MFA code"})
+			return
+		}
 	}
 
 	token, err := utils.GenerateToken(int64(user.ID))
