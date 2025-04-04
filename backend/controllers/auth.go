@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -101,6 +102,8 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+		// Log failed login attempt with client IP
+		log.Printf("Failed login attempt for email: %s from IP: %s", input.Email, c.ClientIP())
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
@@ -108,10 +111,12 @@ func (ac *AuthController) Login(c *gin.Context) {
 	// MFA check
 	if user.Role == "admin" {
 		if input.MFACode == "" {
+			log.Printf("Suspicious login (MFA missing) for admin email: %s from IP: %s", input.Email, c.ClientIP())
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "MFA code required"})
 			return
 		}
 		if input.MFACode != "123456" {
+			log.Printf("Suspicious login (invalid MFA) for admin email: %s from IP: %s", input.Email, c.ClientIP())
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid MFA code"})
 			return
 		}
