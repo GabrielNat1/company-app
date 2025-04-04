@@ -8,7 +8,6 @@ import (
 )
 
 type visitor struct {
-	limiter  *time.Ticker
 	lastSeen time.Time
 	count    int
 }

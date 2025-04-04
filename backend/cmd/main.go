@@ -66,6 +66,8 @@ func main() {
 	handler := c.Handler(mux)
 	// Wrap the handler with rate limiting (10 requests per minute per IP)
 	handler = middleware.RateLimitMiddleware(10, time.Minute)(handler)
+	// Wrap with secure headers middleware
+	handler = middleware.SecureHeaders(handler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
