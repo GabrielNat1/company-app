@@ -10,6 +10,7 @@ import (
 	"github.com/GabrielNat1/WorkSphere/database"
 	"github.com/GabrielNat1/WorkSphere/middleware"
 	"github.com/GabrielNat1/WorkSphere/routes"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 )
 
@@ -50,6 +51,9 @@ func main() {
 
 	// Reset password endpoint
 	mux.HandleFunc("/api/auth/reset-password", routes.HandleResetPassword(db))
+
+	// Expose Prometheus metrics endpoint for Grafana
+	mux.Handle("/metrics", promhttp.Handler())
 
 	// CORS configuration
 	c := cors.New(cors.Options{
