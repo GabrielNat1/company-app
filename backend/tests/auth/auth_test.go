@@ -11,6 +11,7 @@ import (
 	"github.com/GabrielNat1/WorkSphere/database/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -85,5 +86,49 @@ func TestLogin(t *testing.T) {
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
+}
+
+func TestLoginCSRFAndMFA(t *testing.T) {
+	// Setup router and DB
+	router, db := setupTestRouter()
+
+	// Create an admin test user with a valid hashed password.
+	password := "password123"
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	assert.NoError(t, err)
+
+	adminUser := models.User{
+		Name:     "Admin User",
+		Email:    "admin@example.com",
+		Password: string(hashedPassword),
+		Role:     "admin",
+	}
+	db.Create(&adminUser)
+
+	t.Run("Successful Admin Login with MFA and CSRF Token", func(t *testing.T) {
+		loginData := map[string]interface{}{
+			"email":    "admin@example.com",
+			"password": "password123",
+			"mfaCode":  "123456",
+		}
+		jsonData, _ := json.Marshal(loginData)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/api/auth/login", bytes.NewBuffer(jsonData))
+		req.Header.Set("Content-Type", "application/json")
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		// Verify token and csrfToken are present.
+		assert.NotEmpty(t, response["token"])
+		assert.NotEmpty(t, response["csrfToken"])
+		// Verify user details
+		userData := response["user"].(map[string]interface{})
+		assert.Equal(t, "admin@example.com", userData["email"])
 	})
 }

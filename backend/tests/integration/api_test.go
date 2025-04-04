@@ -11,6 +11,7 @@ import (
 
 	"github.com/GabrielNat1/WorkSphere/controllers"
 	"github.com/GabrielNat1/WorkSphere/database/models"
+	"github.com/GabrielNat1/WorkSphere/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
@@ -112,5 +113,29 @@ func TestAPIIntegration(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer "+token)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("Secure Headers Present", func(t *testing.T) {
+		// Create a new Gin engine with SecureHeaders middleware wrapped
+		r := gin.New()
+		// Wrap requests with SecureHeaders
+		r.Use(func(c *gin.Context) {
+			middleware.SecureHeaders(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// simply continue the Gin handler chain
+				c.Next()
+			})).ServeHTTP(c.Writer, c.Request)
+		})
+		// Dummy health endpoint
+		r.GET("/health", func(c *gin.Context) {
+			c.String(http.StatusOK, "OK")
+		})
+
+		req := httptest.NewRequest("GET", "/health", nil)
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, "default-src 'self';", w.Header().Get("Content-Security-Policy"))
+		assert.Equal(t, "DENY", w.Header().Get("X-Frame-Options"))
+		assert.Equal(t, "nosniff", w.Header().Get("X-Content-Type-Options"))
 	})
 }
