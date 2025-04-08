@@ -80,6 +80,9 @@ go run main.go migrate
 go run main.go
 ```
 
+## Features
+- **Caching**: The `/api/events` endpoint uses an in-memory cache with a 5-minute expiration to improve performance for frequent read operations.
+
 ## API Endpoints
 
 ### **Authentication** (`/api/auth`)
@@ -88,8 +91,8 @@ go run main.go
 - `POST /reset-password` - Reset user password.
 
 ### **Events** (`/api/events`)
-- `GET /` - List all events.
-- `POST /` - Create event (**Admin only**).
+- `GET /` - List all events (cached for 5 minutes).
+- `POST /` - Create event (**Admin only**, invalidates cache).
 - `POST /join/:id` - Join an event.
 
 ### **Dashboard** (`/api/dashboard`)

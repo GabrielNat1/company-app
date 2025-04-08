@@ -6,6 +6,8 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 )
 
 func validateToken(authHeader string) (int, error) {
@@ -33,6 +35,13 @@ func getEventIDFromPath(path string) (int, error) {
 	return 1, nil // Replace with actual event ID extraction logic
 }
 
+var (
+	eventsCache      []byte
+	eventsCacheMutex sync.Mutex
+	eventsCacheTime  time.Time
+	cacheDuration    = 5 * time.Minute
+)
+
 func HandleEvents(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Verificar autenticação
@@ -44,6 +53,16 @@ func HandleEvents(db *sql.DB) http.HandlerFunc {
 
 		switch r.Method {
 		case http.MethodGet:
+			// Check cache
+			eventsCacheMutex.Lock()
+			if time.Since(eventsCacheTime) < cacheDuration && eventsCache != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.Write(eventsCache)
+				eventsCacheMutex.Unlock()
+				return
+			}
+			eventsCacheMutex.Unlock()
+
 			rows, err := db.Query(`
 				SELECT id, title, description, date, location, capacity
 				FROM events
@@ -75,9 +94,27 @@ func HandleEvents(db *sql.DB) http.HandlerFunc {
 				events = append(events, event)
 			}
 
-			json.NewEncoder(w).Encode(events)
+			// Cache the response
+			response, err := json.Marshal(events)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			eventsCacheMutex.Lock()
+			eventsCache = response
+			eventsCacheTime = time.Now()
+			eventsCacheMutex.Unlock()
+
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(response)
 
 		case http.MethodPost:
+			// Invalidate cache on POST
+			eventsCacheMutex.Lock()
+			eventsCache = nil
+			eventsCacheMutex.Unlock()
+
 			// Verify admin role
 			var role string
 			err := db.QueryRow("SELECT role FROM users WHERE id = ?", userID).Scan(&role)
