@@ -5,10 +5,12 @@ import (
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/spf13/viper"
 )
 
 func InitDB() *sql.DB {
-	db, err := sql.Open("sqlite3", "./worksphere.db")
+	connection := viper.GetString("database.connection")
+	db, err := sql.Open(viper.GetString("database.driver"), connection)
 	if err != nil {
 		log.Fatal(err)
 	}

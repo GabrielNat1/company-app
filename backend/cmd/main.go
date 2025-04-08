@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/GabrielNat1/WorkSphere/controllers"
 	"github.com/GabrielNat1/WorkSphere/database"
@@ -17,7 +17,22 @@ import (
 	"github.com/rs/cors"
 )
 
+func initConfig() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")         // Current directory
+	viper.AddConfigPath("../config") // Corrected path to the config directory
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file: %v", err)
+	}
+
+	viper.AutomaticEnv()
+}
+
 func main() {
+	initConfig()
+
 	// Initialize logger
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.JSONFormatter{})
@@ -68,14 +83,14 @@ func main() {
 
 	// CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:19000"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
-		AllowCredentials: true,
+		AllowedOrigins:   viper.GetStringSlice("cors.allowed_origins"),
+		AllowedMethods:   viper.GetStringSlice("cors.allowed_methods"),
+		AllowedHeaders:   viper.GetStringSlice("cors.allowed_headers"),
+		AllowCredentials: viper.GetBool("cors.allow_credentials"),
 	})
 	handler := c.Handler(router)
 
-	port := os.Getenv("PORT")
+	port := viper.GetString("server.port")
 	if port == "" {
 		port = "8080"
 	}

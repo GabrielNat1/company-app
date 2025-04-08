@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://localhost:19000"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+  allowed_headers:
+    - "Authorization"
+    - "Content-Type"
+  allow_credentials: true
+
+database:
+  driver: sqlite3
+  connection: "./worksphere.db"
