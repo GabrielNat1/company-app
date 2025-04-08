@@ -54,7 +54,8 @@ func main() {
 	utils.InitI18n()
 
 	router := gin.Default()
-	router.Use(middleware.I18nMiddleware()) // Adicionar middleware de i18n
+	router.Use(middleware.I18nMiddleware())       // Adicionar middleware de i18n
+	router.Use(middleware.PrometheusMiddleware()) // Use PrometheusMiddleware from middleware package
 
 	// Public routes
 	router.POST("/api/auth/register", gin.WrapF(routes.HandleRegister(db)))
@@ -78,7 +79,7 @@ func main() {
 	// EndPoint reset password
 	router.POST("/api/auth/reset-password", gin.WrapF(routes.HandleResetPassword(db)))
 
-	// Prometheus
+	// Prometheus metrics endpoint
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// CORS
