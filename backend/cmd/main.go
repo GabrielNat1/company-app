@@ -61,6 +61,14 @@ func main() {
 	router.POST("/api/auth/register", gin.WrapF(routes.HandleRegister(db)))
 	router.POST("/api/auth/login", gin.WrapF(routes.HandleLogin(db)))
 
+	// Webhook endpoints (tests)
+	router.POST("/webhook/user-registered", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "user registered webhook received"})
+	})
+	router.POST("/webhook/event-created", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "event created webhook received"})
+	})
+
 	// Private routes
 	router.GET("/api/events", gin.WrapF(routes.HandleEvents(db)))
 	router.POST("/api/events/join/:id", gin.WrapF(routes.HandleJoinEvent(db)))
@@ -90,6 +98,12 @@ func main() {
 		AllowCredentials: viper.GetBool("cors.allow_credentials"),
 	})
 	handler := c.Handler(router)
+
+	// userWebhookURL is currently unused, but you can use it in your webhook logic
+	_ = viper.GetString("webhooks.user_registered")
+
+	// Use these URLs in the respective controllers
+	// Example: Pass them to SendWebhookNotification calls
 
 	port := viper.GetString("server.port")
 	if port == "" {

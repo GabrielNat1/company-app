@@ -69,6 +69,9 @@ func (ac *AuthController) Register(c *gin.Context) {
 		return
 	}
 
+	// Enviar notificação via webhook para novo registro de usuário
+	go utils.SendWebhookNotification("user_registered", "UserRegistered", user)
+
 	logger.WithField("email", input.Email).Info("User registered successfully")
 
 	token, err := utils.GenerateToken(int64(user.ID))

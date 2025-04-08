@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/GabrielNat1/WorkSphere/database/models"
+	"github.com/GabrielNat1/WorkSphere/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
@@ -75,6 +76,9 @@ func (ec *EventController) CreateEvent(c *gin.Context) {
 
 	// Log event creation for debugging
 	fmt.Printf("Event created: %+v\n", event)
+
+	// Enviar notificação via webhook para criação de evento
+	go utils.SendWebhookNotification("event_created", "EventCreated", event)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"id":          event.ID,

@@ -19,3 +19,7 @@ cors:
 database:
   driver: sqlite3
   connection: "./worksphere.db"
+
+webhooks:
+  user_registered: "http://localhost:8080/webhook/user-registered"
+  event_created: "http://localhost:8080/webhook/event-created"
