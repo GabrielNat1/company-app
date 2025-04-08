@@ -1,0 +1,18 @@
+{
+	"en": {
+		"error.invalid_input": "Invalid input provided.",
+		"success.user_created": "User created successfully."
+	},
+	"pt": {
+		"error.invalid_input": "Entrada inválida fornecida.",
+		"success.user_created": "Usuário criado com sucesso."
+	},
+	"es": {
+		"error.invalid_input": "Entrada inválida proporcionada.",
+		"success.user_created": "Usuario creado con éxito."
+	},
+	"ru": {
+		"error.invalid_input": "Предоставлены неверные данные.",
+		"success.user_created": "Пользователь успешно создан."
+	}
+}

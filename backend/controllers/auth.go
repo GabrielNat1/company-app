@@ -10,6 +10,7 @@ import (
 	"github.com/GabrielNat1/WorkSphere/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -35,9 +36,11 @@ type RegisterInput struct {
 }
 
 func (ac *AuthController) Register(c *gin.Context) {
+	lang := c.GetString("lang")
+	logger := logrus.WithField("action", "register")
 	var input RegisterInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": utils.Translate(lang, "error.invalid_input")})
 		return
 	}
 
@@ -61,9 +64,12 @@ func (ac *AuthController) Register(c *gin.Context) {
 	}
 
 	if err := ac.db.Create(&user).Error; err != nil {
+		logger.WithError(err).WithField("email", input.Email).Error("Failed to create user")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
 		return
 	}
+
+	logger.WithField("email", input.Email).Info("User registered successfully")
 
 	token, err := utils.GenerateToken(int64(user.ID))
 	if err != nil {
@@ -72,8 +78,9 @@ func (ac *AuthController) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"token": token,
-		"user":  user,
+		"message": utils.Translate(lang, "success.user_created"),
+		"user":    user,
+		"token":   token,
 	})
 }
 
@@ -84,6 +91,7 @@ type LoginInput struct {
 }
 
 func (ac *AuthController) Login(c *gin.Context) {
+	logger := logrus.WithField("action", "login")
 	var input LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -102,8 +110,10 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		// Log failed login attempt with client IP
-		log.Printf("Failed login attempt for email: %s from IP: %s", input.Email, c.ClientIP())
+		logger.WithFields(logrus.Fields{
+			"email": input.Email,
+			"ip":    c.ClientIP(),
+		}).Warn("Failed login attempt")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
@@ -121,6 +131,11 @@ func (ac *AuthController) Login(c *gin.Context) {
 			return
 		}
 	}
+
+	logger.WithFields(logrus.Fields{
+		"email": input.Email,
+		"ip":    c.ClientIP(),
+	}).Info("User logged in successfully")
 
 	token, err := utils.GenerateToken(int64(user.ID))
 	if err != nil {

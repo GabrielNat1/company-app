@@ -9,6 +9,7 @@ import (
 	"github.com/GabrielNat1/WorkSphere/database/models"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -33,6 +34,7 @@ type CreateEventInput struct {
 }
 
 func (ec *EventController) CreateEvent(c *gin.Context) {
+	logger := logrus.WithField("action", "create_event")
 	var input CreateEventInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -61,9 +63,15 @@ func (ec *EventController) CreateEvent(c *gin.Context) {
 	}
 
 	if err := ec.db.Create(&event).Error; err != nil {
+		logger.WithError(err).Error("Failed to create event")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create event"})
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"event_id": event.ID,
+		"title":    event.Title,
+	}).Info("Event created successfully")
 
 	// Log event creation for debugging
 	fmt.Printf("Event created: %+v\n", event)
@@ -80,6 +88,7 @@ func (ec *EventController) CreateEvent(c *gin.Context) {
 }
 
 func (ec *EventController) JoinEvent(c *gin.Context) {
+	logger := logrus.WithField("action", "join_event")
 	eventId, _ := strconv.Atoi(c.Param("id"))
 	userId := c.GetUint("userId")
 
@@ -102,9 +111,18 @@ func (ec *EventController) JoinEvent(c *gin.Context) {
 	}
 
 	if err := ec.db.Model(&event).Association("Users").Append(&user); err != nil {
+		logger.WithError(err).WithFields(logrus.Fields{
+			"user_id":  userId,
+			"event_id": eventId,
+		}).Error("Failed to join event")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to join event"})
 		return
 	}
+
+	logger.WithFields(logrus.Fields{
+		"user_id":  userId,
+		"event_id": eventId,
+	}).Info("User joined event successfully")
 
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully joined event"})
 }
