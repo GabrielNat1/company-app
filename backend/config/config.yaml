@@ -3,6 +3,7 @@ server:
 
 cors:
   allowed_origins:
+    - "http://localhost:5173"  # frontend 
     - "http://localhost:3000"
     - "http://localhost:19000"
   allowed_methods:

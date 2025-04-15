@@ -90,14 +90,17 @@ func main() {
 	// Prometheus metrics endpoint
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
-	// CORS
-	c := cors.New(cors.Options{
+	// CORS configuration
+	corsConfig := cors.New(cors.Options{
 		AllowedOrigins:   viper.GetStringSlice("cors.allowed_origins"),
 		AllowedMethods:   viper.GetStringSlice("cors.allowed_methods"),
-		AllowedHeaders:   viper.GetStringSlice("cors.allowed_headers"),
-		AllowCredentials: viper.GetBool("cors.allow_credentials"),
+		AllowedHeaders:   append(viper.GetStringSlice("cors.allowed_headers"), "X-CSRF-Token"),
+		ExposedHeaders:   []string{"X-CSRF-Token"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum age for CORS preflight cache
 	})
-	handler := c.Handler(router)
+
+	handler := corsConfig.Handler(router)
 
 	// userWebhookURL is currently unused, but you can use it in your webhook logic
 	_ = viper.GetString("webhooks.user_registered")
